@@ -1,0 +1,32 @@
+name: Build Workflow
+
+on:
+  push:
+    branches:
+      - main  # Adjust the branch name as per your repository's main branch
+
+jobs:
+  quality checks:
+    name: Quality checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: run unit tests
+        run: echo "running unit test"
+
+  build-for-dev:
+    uses: ./.github/workflows/build_release.yml
+    with:
+      ENVIRONMENT_STAGE: dev
+
+  build-for-ref:
+    uses: ./.github/workflows/build_release.yml
+    with:
+      ENVIRONMENT_STAGE: ref
+
+  build-for-prod:
+    uses: ./.github/workflows/build_release.yml
+    with:
+      ENVIRONMENT_STAGE: prod

@@ -1,0 +1,22 @@
+name: build release workflow
+
+on:
+  workflow_call:
+    inputs:
+      ENVIRONMENT_STAGE:
+        required: true
+        type: string
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    environment:  ${{ inputs.ENVIRONMENT_STAGE }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: show environment
+        run: echo "running on ${{ inputs.ENVIRONMENT_STAGE }}"
+
+      - name: show message
+        run: echo "${{ vars.MESSAGE }}"
