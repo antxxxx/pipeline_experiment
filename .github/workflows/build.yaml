@@ -16,20 +16,50 @@ jobs:
       - name: run unit tests
         run: echo "running unit test"
 
-  build-for-dev:
+  package_code:
+    name: Package code
     needs: quality_checks
-    uses: ./.github/workflows/build_release.yml
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: package code
+        run: echo "packaging code"
+
+      - run: echo dev > ./dev.txt
+      - run: echo ref > ./ref.txt
+      - run: echo prod > ./prod.txt
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dev_release
+          path: ./dev.txt        
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ref_release
+          path: ./ref.txt        
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: prod_release
+          path: ./prod.txt        
+        
+  release_dev:
+    needs: package_code
+    uses: ./.github/workflows/deploy_package.yml
     with:
       ENVIRONMENT_STAGE: dev
 
-  build-for-ref:
-    needs: quality_checks
-    uses: ./.github/workflows/build_release.yml
+  release_ref:
+    needs: release_dev
+    uses: ./.github/workflows/deploy_package.yml
     with:
       ENVIRONMENT_STAGE: ref
 
-  build-for-prod:
-    needs: quality_checks
-    uses: ./.github/workflows/build_release.yml
+  release_prod:
+    needs: release_ref
+    uses: ./.github/workflows/deploy_package.yml
     with:
       ENVIRONMENT_STAGE: prod

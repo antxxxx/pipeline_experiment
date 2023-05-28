@@ -1,0 +1,80 @@
+name: Build Workflow
+
+on:
+  push:
+    branches:
+      - main  # Adjust the branch name as per your repository's main branch
+
+jobs:
+  build_dev:
+    name: Build for Dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build for Dev
+        run: make build
+        env:
+          ENV: dev
+
+  build_ref:
+    name: Build for Ref
+    runs-on: ubuntu-latest
+    needs: build_dev
+    if: github.event_name == 'push' && github.ref == 'refs/heads/ref' && needs.build_dev.result == 'success'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build for Ref
+        run: make build
+        env:
+          ENV: ref
+
+  build_prod:
+    name: Build for Prod
+    runs-on: ubuntu-latest
+    needs: build_ref
+    if: github.event_name == 'push' && github.ref == 'refs/heads/prod' && needs.build_ref.result == 'success'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build for Prod
+        run: make build
+        env:
+          ENV: prod
+
+  manual_approval:
+    name: Manual Approval
+    runs-on: ubuntu-latest
+    needs: build_ref
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/ref' || github.ref == 'refs/heads/prod') && needs.build_ref.result == 'success'
+    steps:
+      - name: Request manual approval
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const context = github.context;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const ref = context.ref;
+
+            const { data: deployments } = await github.rest.repos.listDeployments({
+              owner,
+              repo,
+              ref
+            });
+
+            const deploymentId = deployments[0].id;
+
+            await github.rest.repos.createDeploymentStatus({
+              owner,
+              repo,
+              deployment_id: deploymentId,
+              state: 'pending',
+              description: 'Please approve the deployment.',
+              environment_url: `https://example.com/deployment/${deploymentId}`
+            });
