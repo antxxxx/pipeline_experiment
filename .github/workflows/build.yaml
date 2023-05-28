@@ -17,16 +17,19 @@ jobs:
         run: echo "running unit test"
 
   build-for-dev:
+    needs: quality_checks
     uses: ./.github/workflows/build_release.yml
     with:
       ENVIRONMENT_STAGE: dev
 
   build-for-ref:
+    needs: quality_checks
     uses: ./.github/workflows/build_release.yml
     with:
       ENVIRONMENT_STAGE: ref
 
   build-for-prod:
+    needs: quality_checks
     uses: ./.github/workflows/build_release.yml
     with:
       ENVIRONMENT_STAGE: prod
