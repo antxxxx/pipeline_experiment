@@ -1,0 +1,27 @@
+name: package_release
+
+on:
+  workflow_call:
+    inputs:
+      TEMPLATE_FILE:
+        required: true
+        type: string
+      ARTIFACT_BUCKET_PREFIX:
+        required: true
+        type: string
+      CLOUD_FORMATION_DEPLOY_ROLE:
+        required: true
+        type: string
+
+jobs:
+  package_release:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+
