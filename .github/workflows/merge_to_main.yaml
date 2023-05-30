@@ -24,7 +24,7 @@ jobs:
         run: echo "SPEC_VERSION=$(poetry run python scripts/calculate_version.py)" >> $GITHUB_ENV
       - name: Create release (master only)
         id: create-release
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         uses: actions/create-release@v1
         continue-on-error: true
         env:
