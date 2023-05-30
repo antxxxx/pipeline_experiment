@@ -1,10 +1,12 @@
 name: Build Workflow
 
 on:
-  push:
-    branches:
-      - main  # Adjust the branch name as per your repository's main branch
+  pull_request:
+    branches: [main]
 
+env:
+  BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
+        
 jobs:
   quality_checks:
     name: Quality checks
@@ -22,7 +24,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.BRANCH_NAME }}
 
       - name: package code
         run: echo "packaging code"

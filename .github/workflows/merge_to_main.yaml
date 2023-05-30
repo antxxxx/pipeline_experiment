@@ -1,0 +1,34 @@
+name: merge to main
+
+on:
+  push:
+    branches: [main]
+
+env:
+  BRANCH_NAME: ${{ github.event.ref.BRANCH_NAME }}
+
+jobs:
+  tag-release:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+          fetch-depth: 0
+      - name: Install asdf and dependencies
+        uses: asdf-vm/actions/install@v2
+      - name: Install python packages
+        run: poetry install
+      - name: Set SPEC_VERSION env var
+        run: echo "SPEC_VERSION=$(poetry run python scripts/calculate_version.py)" >> $GITHUB_ENV
+      - name: Create release (master only)
+        id: create-release
+        if: github.ref == 'refs/heads/master'
+        uses: actions/create-release@v1
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.SPEC_VERSION }}
+          release_name: ${{ env.SPEC_VERSION }}
