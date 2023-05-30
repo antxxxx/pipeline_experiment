@@ -8,27 +8,66 @@ env:
   BRANCH_NAME: ${{ github.event.ref.BRANCH_NAME }}
 
 jobs:
-  tag-release:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    tag_release:
+        runs-on: ubuntu-latest
+        outputs:
+            spec_version: ${{steps.output_spec_version.outputs.result}}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+              with:
+                ref: ${{ env.BRANCH_NAME }}
+                fetch-depth: 0
+
+            - name: Install asdf and dependencies
+              uses: asdf-vm/actions/install@v2
+            - name: Install python packages
+              run: poetry install
+            - name: Set SPEC_VERSION env var for merges to main
+              run: echo "SPEC_VERSION=$(poetry run python scripts/calculate_version.py)" >> $GITHUB_ENV
+              if: github.ref == 'refs/heads/main'
+
+            - name: Set SPEC_VERSION env var for tags
+              run: echo "SPEC_VERSION=${{  github.ref_name }}" >> $GITHUB_ENV
+              if: github.ref != 'refs/heads/main'
+
+            - name: Create release (tags and main)
+              id: create-release
+              uses: actions/create-release@v1
+              continue-on-error: true
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  tag_name: ${{ env.SPEC_VERSION }}
+                  release_name: ${{ env.SPEC_VERSION }}
+
+            - name: output SPEC_VERSION
+              id: output_spec_version
+              run: echo ${{ env.SPEC_VERSION }} >> $$GITHUB_OUTPUT
+        
+    release_dev:
+        needs: tag_release
+        uses: ./.github/workflows/release_code.yml
         with:
-          ref: ${{ env.BRANCH_NAME }}
-          fetch-depth: 0
-      - name: Install asdf and dependencies
-        uses: asdf-vm/actions/install@v2
-      - name: Install python packages
-        run: poetry install
-      - name: Set SPEC_VERSION env var
-        run: echo "SPEC_VERSION=$(poetry run python scripts/calculate_version.py)" >> $GITHUB_ENV
-      - name: Create release (master only)
-        id: create-release
-        if: github.ref == 'refs/heads/main'
-        uses: actions/create-release@v1
-        continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            TEMPLATE_FILE: ${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+            STACK_NAME: dev-ci
+            CLOUD_FORMATION_DEPLOY_ROLE: blargh
+            TARGET_ENVIRONMENT: dev
+      
+    release_ref:
+        needs: [tag_release, release_dev]
+        uses: ./.github/workflows/release_code.yml
         with:
-          tag_name: ${{ env.SPEC_VERSION }}
-          release_name: ${{ env.SPEC_VERSION }}
+            TEMPLATE_FILE: ${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+            STACK_NAME: ref-ci
+            CLOUD_FORMATION_DEPLOY_ROLE: blargh
+            TARGET_ENVIRONMENT: ref
+
+    release_prod:
+        needs: [tag_release, release_ref]
+        uses: ./.github/workflows/release_code.yml
+        with:
+            TEMPLATE_FILE: ${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+            STACK_NAME: prod-ci
+            CLOUD_FORMATION_DEPLOY_ROLE: blargh
+            TARGET_ENVIRONMENT: prod

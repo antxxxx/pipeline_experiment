@@ -1,0 +1,33 @@
+name: release package workflow
+
+on:
+  workflow_call:
+    inputs:
+      TEMPLATE_FILE:
+        required: true
+        type: string
+      STACK_NAME:
+        required: true
+        type: string
+      CLOUD_FORMATION_DEPLOY_ROLE:
+        required: true
+        type: string
+      TARGET_ENVIRONMENT:
+        required: true
+        type: string
+
+jobs:
+  release_package:
+    runs-on: ubuntu-latest
+    environment:  ${{ inputs.TARGET_ENVIRONMENT }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: show environment
+        run: |
+          echo "TEPMLATE_FILE: ${{ inputs.TEPMLATE_FILE }}"
+          echo "STACK_NAME: ${{ inputs.STACK_NAME }}"
+          echo "CLOUD_FORMATION_DEPLOY_ROLE: ${{ inputs.CLOUD_FORMATION_DEPLOY_ROLE }}"
+          echo "TARGET_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}"
+
