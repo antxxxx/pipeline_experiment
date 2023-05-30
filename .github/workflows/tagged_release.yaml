@@ -3,9 +3,9 @@ name: tagged_release
 on:
   push:
     tags: [v**]
-    
+
 jobs:
-  test:
+  get_release_tag:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -15,3 +15,21 @@ jobs:
         run: |
           echo $RELEASE_VERSION
           echo ${{ env.RELEASE_VERSION }}
+
+  release_dev:
+    needs: get_release_tag
+    uses: ./.github/workflows/deploy_package.yml
+    with:
+      ENVIRONMENT_STAGE: dev
+
+  release_ref:
+    needs: release_dev
+    uses: ./.github/workflows/deploy_package.yml
+    with:
+      ENVIRONMENT_STAGE: ref
+
+  release_prod:
+    needs: release_ref
+    uses: ./.github/workflows/deploy_package.yml
+    with:
+      ENVIRONMENT_STAGE: prod

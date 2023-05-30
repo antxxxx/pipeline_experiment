@@ -50,20 +50,3 @@ jobs:
           name: prod_release
           path: ./prod.txt        
         
-  release_dev:
-    needs: package_code
-    uses: ./.github/workflows/deploy_package.yml
-    with:
-      ENVIRONMENT_STAGE: dev
-
-  release_ref:
-    needs: release_dev
-    uses: ./.github/workflows/deploy_package.yml
-    with:
-      ENVIRONMENT_STAGE: ref
-
-  release_prod:
-    needs: release_ref
-    uses: ./.github/workflows/deploy_package.yml
-    with:
-      ENVIRONMENT_STAGE: prod
