@@ -9,6 +9,9 @@ on:
       STACK_NAME:
         required: true
         type: string
+      ARTIFACT_BUCKET_PREFIX:
+        required: true
+        type: string
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
         type: string
