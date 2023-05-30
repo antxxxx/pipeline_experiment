@@ -78,7 +78,7 @@ jobs:
     needs: tag_release
     uses: ./.github/workflows/package_code.yml
     with:
-      TEMPLATE_FILE: ref-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+      TEMPLATE_FILE: int-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       CLOUD_FORMATION_DEPLOY_ROLE: vars_INT_CLOUD_FORMATION_DEPLOY_ROLE
           
@@ -86,7 +86,7 @@ jobs:
     needs: tag_release
     uses: ./.github/workflows/package_code.yml
     with:
-      TEMPLATE_FILE: ref-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+      TEMPLATE_FILE: prod-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       CLOUD_FORMATION_DEPLOY_ROLE: vars_PROD_CLOUD_FORMATION_DEPLOY_ROLE
     
@@ -115,9 +115,9 @@ jobs:
     needs: [tag_release, release_dev, package_qa_code]
     uses: ./.github/workflows/release_code.yml
     with:
-      TEMPLATE_FILE: ref-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+      TEMPLATE_FILE: qa-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-      STACK_NAME: ref-ci
+      STACK_NAME: qa-ci
       CLOUD_FORMATION_DEPLOY_ROLE: vars_REF_CLOUD_FORMATION_DEPLOY_ROLE
       TARGET_ENVIRONMENT: qa
 
@@ -125,9 +125,9 @@ jobs:
     needs: [tag_release, release_qa, package_int_code]
     uses: ./.github/workflows/release_code.yml
     with:
-      TEMPLATE_FILE: ref-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+      TEMPLATE_FILE: int-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-      STACK_NAME: ref-ci
+      STACK_NAME: int-ci
       CLOUD_FORMATION_DEPLOY_ROLE: vars_INT_CLOUD_FORMATION_DEPLOY_ROLE
       TARGET_ENVIRONMENT: int
 
@@ -135,9 +135,9 @@ jobs:
     needs: [tag_release, release_int, package_prod_code]
     uses: ./.github/workflows/release_code.yml
     with:
-      TEMPLATE_FILE: ref-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
+      TEMPLATE_FILE: prod-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-      STACK_NAME: ref-ci
+      STACK_NAME: prod-ci
       CLOUD_FORMATION_DEPLOY_ROLE: vars_PROD_CLOUD_FORMATION_DEPLOY_ROLE
       TARGET_ENVIRONMENT: prod
           
