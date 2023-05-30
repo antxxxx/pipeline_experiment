@@ -12,7 +12,8 @@ jobs:
   quality_checks:
     uses: ./.github/workflows/quality_checks.yml
 
-  tag_release:    
+  tag_release:
+    needs: quality_checks
     runs-on: ubuntu-latest
     outputs:
         spec_version: ${{steps.output_spec_version.outputs.SPEC_VERSION}}
