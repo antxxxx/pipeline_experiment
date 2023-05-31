@@ -3,7 +3,7 @@ name: tag release
 on:
   push:
     branches: [main]
-    tags: [v**]
+    tags: [hotfix**]
 
 env:
   BRANCH_NAME: ${{ github.event.ref.BRANCH_NAME }}
@@ -38,7 +38,7 @@ jobs:
           if: github.ref == 'refs/heads/main'
 
         - name: Set SPEC_VERSION env var for tags
-          run: echo "SPEC_VERSION=${{  github.ref_name }}" >> $GITHUB_ENV
+          run: echo "SPEC_VERSION=v-${{  github.ref_name }}" >> $GITHUB_ENV
           if: github.ref != 'refs/heads/main'
 
         - name: output SPEC_VERSION
