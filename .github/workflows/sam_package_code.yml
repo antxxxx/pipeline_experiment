@@ -9,9 +9,9 @@ on:
       ARTIFACT_BUCKET_PREFIX:
         required: true
         type: string
+    secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
-        type: string
 
 jobs:
   package_release:
