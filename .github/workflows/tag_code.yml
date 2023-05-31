@@ -28,7 +28,7 @@ jobs:
             fetch-depth: 0
 
         - name: Install asdf and dependencies
-          uses: asdf-vm/actions/install@v2
+          uses: asdf-vm/actions/install@6a44239
 
         - name: Install python packages
           run: poetry install
@@ -90,7 +90,7 @@ jobs:
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
     
-  tag_release:
+  create_draft_release:
     needs: 
       - get_tag
       - package_dev_code
@@ -100,8 +100,8 @@ jobs:
       - package_prod_code
     runs-on: ubuntu-latest
     steps:
-        - name: Create release (tags and main)
-          id: create-release
+        - name: Create draft release
+          id: create_draft_release
           uses: actions/create-release@v1
           continue-on-error: true
           env:
