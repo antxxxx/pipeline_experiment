@@ -24,6 +24,7 @@ jobs:
             ref: ${{ env.BRANCH_NAME }}
             fetch-depth: 0
 
+        # using git commit sha for version of action to ensure we have stable version
         - name: Install asdf and dependencies
           uses: asdf-vm/actions/install@6a442392015fbbdd8b48696d41e0051b2698b2e4
 
@@ -47,67 +48,19 @@ jobs:
           with:
               tag_name: ${{ env.SPEC_VERSION }}
               release_name: ${{ env.SPEC_VERSION }}
-              body: |
-                ## Info
-                [See code diff](${{ github.event.compare }}).
-    
-                It was initialized by [${{ github.event.sender.login }}](${{ github.event.sender.html_url }}).
-    
+
         - name: output SPEC_VERSION
           id: output_spec_version
           run: echo SPEC_VERSION=${{ env.SPEC_VERSION }} >> $GITHUB_OUTPUT
 
-  package_dev_code:
+  package_code:
     needs: tag_release
     uses: ./.github/workflows/sam_package_code.yml
-    with:
-      TEMPLATE_FILE: dev-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-          
-  package_ref_code:
-    needs: tag_release
-    uses: ./.github/workflows/sam_package_code.yml
-    with:
-      TEMPLATE_FILE: ref-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
-    
-  package_qa_code:
-    needs: tag_release
-    uses: ./.github/workflows/sam_package_code.yml
-    with:
-      TEMPLATE_FILE: qa-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
-
-  package_int_code:
-    needs: tag_release
-    uses: ./.github/workflows/sam_package_code.yml
-    with:
-      TEMPLATE_FILE: int-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
-          
-  package_prod_code:
-    needs: tag_release
-    uses: ./.github/workflows/sam_package_code.yml
-    with:
-      TEMPLATE_FILE: prod-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
-      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
-    secrets:
-      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
-    
 
   release_dev:
-    needs: [tag_release, package_dev_code]
+    needs: [tag_release, package_code]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      TEMPLATE_FILE: dev-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: dev-ci
       TARGET_ENVIRONMENT: dev
@@ -115,10 +68,9 @@ jobs:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       
   release_ref:
-    needs: [tag_release, release_dev, package_ref_code]
+    needs: [tag_release, release_dev, package_code]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      TEMPLATE_FILE: ref-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: ref-ci
       TARGET_ENVIRONMENT: ref
@@ -126,10 +78,9 @@ jobs:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
 
   release_qa:
-    needs: [tag_release, release_dev, package_qa_code]
+    needs: [tag_release, release_dev, package_code]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      TEMPLATE_FILE: qa-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: qa-ci
       TARGET_ENVIRONMENT: qa
@@ -137,10 +88,9 @@ jobs:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
 
   release_int:
-    needs: [tag_release, release_qa, package_int_code]
+    needs: [tag_release, release_qa, package_code]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      TEMPLATE_FILE: int-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: int-ci
       TARGET_ENVIRONMENT: int
@@ -148,10 +98,9 @@ jobs:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
 
   release_prod:
-    needs: [tag_release, release_int, package_prod_code]
+    needs: [tag_release, release_int, package_code]
     uses: ./.github/workflows/sam_release_code.yml
     with:
-      TEMPLATE_FILE: prod-${{needs.tag_release.outputs.spec_version}}-deploy.yaml
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: prod-ci
       TARGET_ENVIRONMENT: prod
