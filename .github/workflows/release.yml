@@ -48,6 +48,8 @@ jobs:
           with:
               tag_name: ${{ env.SPEC_VERSION }}
               release_name: ${{ env.SPEC_VERSION }}
+              body: Release url -  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
 
         - name: output SPEC_VERSION
           id: output_spec_version
