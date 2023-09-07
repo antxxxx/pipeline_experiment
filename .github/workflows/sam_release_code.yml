@@ -70,6 +70,7 @@ jobs:
               repo: context.repo.repo, 
               ref: refForTagging,
               auto_merge: false,
+              required_contexts: [],
               environment: '${{ inputs.TARGET_ENVIRONMENT }}',
               description: '${{ inputs.VERSION_NUMBER }}'
             });
