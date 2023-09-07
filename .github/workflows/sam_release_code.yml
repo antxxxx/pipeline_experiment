@@ -35,6 +35,10 @@ jobs:
           echo "TARGET_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}"
           echo "VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}"
 
+  fix_deployments:
+    runs-on: ubuntu-latest
+    needs: release_package
+    steps:
       - name: Delete Previous deployments
         uses: actions/github-script@v6
         with:
@@ -74,6 +78,7 @@ jobs:
               environment: '${{ inputs.TARGET_ENVIRONMENT }}',
               description: '${{ inputs.VERSION_NUMBER }}'
             });
+            console.log(`updating status for deployment id ${deployment.data.id}`)
             await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner, 
               repo: context.repo.repo, 
