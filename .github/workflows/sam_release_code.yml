@@ -39,11 +39,12 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const refForTagging = '${{ inputs.VERSION_NUMBER }}'.startsWith('PR-') ? context.sha: '${{ inputs.VERSION_NUMBER }}'
+            const refForTagging = '${{ inputs.VERSION_NUMBER }}'.startsWith('PR-') ? ${{ github.event.pull_request.head.sha }}: '${{ inputs.VERSION_NUMBER }}'
+            const refToDelete = '${{ inputs.VERSION_NUMBER }}'.startsWith('PR-') ? ${{ github.event.pull_request.head.sha }}: context.sha
             const deployments = await github.rest.repos.listDeployments({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              sha: context.sha,
+              sha: refToDelete,
               environment: '${{ inputs.TARGET_ENVIRONMENT }}'
             });
             await Promise.all(
@@ -64,11 +65,18 @@ jobs:
               })
             );
             console.log(`creating deployment for ref ${refForTagging} with environment ${{ inputs.TARGET_ENVIRONMENT }} and description ${{ inputs.VERSION_NUMBER }}`)
-            await github.rest.repos.createDeployment({ 
+            const deployment = await github.rest.repos.createDeployment({ 
               owner: context.repo.owner, 
               repo: context.repo.repo, 
               ref: refForTagging,
               auto_merge: false,
               environment: '${{ inputs.TARGET_ENVIRONMENT }}',
               description: '${{ inputs.VERSION_NUMBER }}'
+            });
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner, 
+              repo: context.repo.repo, 
+              deployment_id: deployment.data.id,
+              description: '${{ inputs.VERSION_NUMBER }}'
+              state: 'success'
             });
