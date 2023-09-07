@@ -12,6 +12,9 @@ on:
       TARGET_ENVIRONMENT:
         required: true
         type: string
+      VERSION_NUMBER:
+        required: true
+        type: string
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -30,4 +33,38 @@ jobs:
           echo "STACK_NAME: ${{ inputs.STACK_NAME }}"
           echo "CLOUD_FORMATION_DEPLOY_ROLE: ${{ inputs.CLOUD_FORMATION_DEPLOY_ROLE }}"
           echo "TARGET_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}"
+          echo "VERSION_NUMBER: ${{ inputs.VERSION_NUMBER }}"
 
+      - name: Delete Previous deployments
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const deployments = await github.rest.repos.listDeployments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              environment: ${{ inputs.TARGET_ENVIRONMENT }}
+            });
+            await Promise.all(
+              deployments.data.map(async (deployment) => {
+                await github.rest.repos.createDeploymentStatus({ 
+                  owner: context.repo.owner, 
+                  repo: context.repo.repo, 
+                  deployment_id: deployment.id, 
+                  state: 'inactive' 
+                });
+                return github.rest.repos.deleteDeployment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  deployment_id: deployment.id
+                });
+              })
+            );
+            await github.rest.repos.createDeployment({ 
+              owner: context.repo.owner, 
+              repo: context.repo.repo, 
+              ref: ${{ inputs.VERSION_NUMBER }},
+              auto_merge: false,
+              environment: ${{ inputs.TARGET_ENVIRONMENT }},
+              description: ${{ inputs.VERSION_NUMBER }}
+            });
