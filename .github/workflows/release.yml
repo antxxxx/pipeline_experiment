@@ -73,6 +73,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: dev-ci
       TARGET_ENVIRONMENT: dev
+      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       
@@ -83,6 +84,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: ref-ci
       TARGET_ENVIRONMENT: ref
+      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.REF_CLOUD_FORMATION_DEPLOY_ROLE }}
 
@@ -93,6 +95,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: qa-ci
       TARGET_ENVIRONMENT: qa
+      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.QA_CLOUD_FORMATION_DEPLOY_ROLE }}
 
@@ -103,6 +106,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: int-ci
       TARGET_ENVIRONMENT: int
+      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
 
@@ -113,6 +117,7 @@ jobs:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: prod-ci
       TARGET_ENVIRONMENT: prod
+      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
           
