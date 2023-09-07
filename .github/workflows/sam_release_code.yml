@@ -48,14 +48,14 @@ jobs:
             });
             await Promise.all(
               deployments.data.map(async (deployment) => {
-                console.log(`setting deployment_id ${deployment_id} to inactive`
+                console.log(`setting deployment_id ${deployment_id} to inactive`)
                 await github.rest.repos.createDeploymentStatus({ 
                   owner: context.repo.owner, 
                   repo: context.repo.repo, 
                   deployment_id: deployment.id, 
                   state: 'inactive' 
                 });
-                console.log(`deleting deployment_id ${deployment_id}`
+                console.log(`deleting deployment_id ${deployment_id}`)
                 return github.rest.repos.deleteDeployment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
@@ -63,7 +63,7 @@ jobs:
                 });
               })
             );
-            console.log(`creating deployment for ref ${refForTagging} with environment ${{ inputs.TARGET_ENVIRONMENT }} and description ${{ inputs.VERSION_NUMBER }}`
+            console.log(`creating deployment for ref ${refForTagging} with environment ${{ inputs.TARGET_ENVIRONMENT }} and description ${{ inputs.VERSION_NUMBER }}`)
             await github.rest.repos.createDeployment({ 
               owner: context.repo.owner, 
               repo: context.repo.repo, 
