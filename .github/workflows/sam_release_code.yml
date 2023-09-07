@@ -64,7 +64,6 @@ jobs:
                 });
               })
             );
-            /*
             console.log(`creating deployment for ref ${refForTagging} with environment ${{ inputs.TARGET_ENVIRONMENT }} and description ${{ inputs.VERSION_NUMBER }}`)
             const deployment = await github.rest.repos.createDeployment({ 
               owner: context.repo.owner, 
@@ -74,6 +73,7 @@ jobs:
               environment: '${{ inputs.TARGET_ENVIRONMENT }}',
               description: '${{ inputs.VERSION_NUMBER }}'
             });
+            /*
             await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner, 
               repo: context.repo.repo, 
