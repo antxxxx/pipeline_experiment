@@ -39,8 +39,8 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const refForTagging = '${{ inputs.VERSION_NUMBER }}'.startsWith('PR-') ? '${{ github.event.pull_request.head.sha }}' ': '${{ inputs.VERSION_NUMBER }}'
-            const refToDelete = '${{ inputs.VERSION_NUMBER }}'.startsWith('PR-') ? '${{ github.event.pull_request.head.sha }}' ': context.sha
+            const refForTagging = '${{ inputs.VERSION_NUMBER }}'.startsWith('PR-') ? '${{ github.event.pull_request.head.sha }}' : '${{ inputs.VERSION_NUMBER }}'
+            const refToDelete = '${{ inputs.VERSION_NUMBER }}'.startsWith('PR-') ? '${{ github.event.pull_request.head.sha }}' : context.sha
             const deployments = await github.rest.repos.listDeployments({
               owner: context.repo.owner,
               repo: context.repo.repo,
