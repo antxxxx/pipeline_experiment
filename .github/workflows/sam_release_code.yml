@@ -74,12 +74,10 @@ jobs:
               environment: '${{ inputs.TARGET_ENVIRONMENT }}',
               description: '${{ inputs.VERSION_NUMBER }}'
             });
-            /*
             await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner, 
               repo: context.repo.repo, 
               deployment_id: deployment.data.id,
-              description: '${{ inputs.VERSION_NUMBER }}'
+              description: '${{ inputs.VERSION_NUMBER }}',
               state: 'success'
             });
-            */
