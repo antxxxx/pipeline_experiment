@@ -45,6 +45,7 @@ jobs:
           script: |
             const refForTagging = '${{ inputs.VERSION_NUMBER }}'.startsWith('PR-') ? '${{ github.event.pull_request.head.sha }}' : '${{ inputs.VERSION_NUMBER }}'
             const refToDelete = '${{ inputs.VERSION_NUMBER }}'.startsWith('PR-') ? '${{ github.event.pull_request.head.sha }}' : context.sha
+            // get current deployments for the current tag and environment
             const deployments = await github.rest.repos.listDeployments({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -53,6 +54,7 @@ jobs:
             });
             await Promise.all(
               deployments.data.map(async (deployment) => {
+                // set current deployment to inactive so it can be deleted
                 console.log(`setting deployment_id ${deployment.id} to inactive`)
                 await github.rest.repos.createDeploymentStatus({ 
                   owner: context.repo.owner, 
@@ -60,6 +62,7 @@ jobs:
                   deployment_id: deployment.id, 
                   state: 'inactive' 
                 });
+                // delete the deployment
                 console.log(`deleting deployment_id ${deployment.id}`)
                 return github.rest.repos.deleteDeployment({
                   owner: context.repo.owner,
@@ -68,6 +71,7 @@ jobs:
                 });
               })
             );
+            // create the new deployment
             console.log(`creating deployment for ref ${refForTagging} with environment ${{ inputs.TARGET_ENVIRONMENT }} and description ${{ inputs.VERSION_NUMBER }}`)
             const deployment = await github.rest.repos.createDeployment({ 
               owner: context.repo.owner, 
@@ -78,6 +82,7 @@ jobs:
               environment: '${{ inputs.TARGET_ENVIRONMENT }}',
               description: '${{ inputs.VERSION_NUMBER }}'
             });
+            // set deployment to success
             console.log(`updating status for deployment id ${deployment.data.id}`)
             await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner, 
