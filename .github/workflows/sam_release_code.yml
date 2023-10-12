@@ -7,16 +7,41 @@ on:
         required: true
         type: string
       ARTIFACT_BUCKET_PREFIX:
-          required: true
-          type: string
+        required: true
+        type: string
       TARGET_ENVIRONMENT:
+        required: true
+        type: string
+      ENABLE_MUTUAL_TLS:
+        required: true
+        type: string
+      BUILD_ARTIFACT:
+        required: true
+        type: string
+      DEPLOY_SANDBOX:
+        required: true
+        type: string
+      TRUSTSTORE_FILE:
         required: true
         type: string
       VERSION_NUMBER:
         required: true
         type: string
+      COMMIT_ID:
+        required: true
+        type: string
+      LOG_LEVEL:
+        required: true
+        type: string
+      LOG_RETENTION_DAYS:
+        required: true
+        type: string
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
+        required: true
+      SPLUNK_HEC_TOKEN:
+        required: true
+      TARGET_SPINE_SERVER:
         required: true
 
 jobs:
