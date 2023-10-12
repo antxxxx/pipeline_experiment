@@ -23,9 +23,6 @@ jobs:
   release_package:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
       - name: show environment
         run: |
           echo "TEPMLATE_FILE: ${{ inputs.TEPMLATE_FILE }}"
