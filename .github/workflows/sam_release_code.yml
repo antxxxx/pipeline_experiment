@@ -76,7 +76,7 @@ jobs:
           echo "Deploying to {{ inputs.TARGET_ENVIRONMENT }}"
 
   create_int_release_notes_pre_int:
-    if: ${{ inputs.CREATE_INT_RC_RELEASE_NOTES == 'true' }}
+    if: ${{ inputs.CREATE_INT_RC_RELEASE_NOTES  }}
     uses: ./.github/workflows/create_confluence_release_notes.yml
     needs: [environment_confirmation]
     with:
@@ -104,7 +104,7 @@ jobs:
 
   create_int_release_notes_post_dev_or_int:
     needs: [sam_release_code]
-    if: ${{ inputs.CREATE_INT_RELEASE_NOTES == 'true' }}
+    if: ${{ inputs.CREATE_INT_RELEASE_NOTES }}
     uses: ./.github/workflows/create_confluence_release_notes.yml
     with:
       TARGET_ENVIRONMENT: int
@@ -117,7 +117,7 @@ jobs:
 
   create_prod_release_notes_post_dev:
     needs: [sam_release_code]
-    if: ${{ inputs.CREATE_PROD_RELEASE_NOTES == 'true' }} 
+    if: ${{ inputs.CREATE_PROD_RELEASE_NOTES }} 
     uses: ./.github/workflows/create_confluence_release_notes.yml
     with:
       TARGET_ENVIRONMENT: prod
@@ -130,7 +130,7 @@ jobs:
 
   create_prod_release_notes_post_prod:
     needs: [sam_release_code]
-    if: ${{ inputs.MARK_JIRA_RELEASED == 'true' }} 
+    if: ${{ inputs.MARK_JIRA_RELEASED }} 
     uses: ./.github/workflows/create_confluence_release_notes.yml
     with:
       TARGET_ENVIRONMENT: prod
