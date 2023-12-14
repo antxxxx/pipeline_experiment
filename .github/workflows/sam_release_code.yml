@@ -63,81 +63,56 @@ on:
         required: false
       
 jobs:
-  environment_confirmation:
+  deploy_code:
     runs-on: ubuntu-latest
     environment: ${{ inputs.TARGET_ENVIRONMENT }}
     permissions:
       id-token: write
       contents: read
     steps:
-      - shell: bash
-        name: confirm release environment
-        run: |
-          echo "Deploying to {{ inputs.TARGET_ENVIRONMENT }}"
-
-  create_int_rc_release_notes:
-    if: ${{ inputs.CREATE_INT_RC_RELEASE_NOTES == true }}
-    uses: ./.github/workflows/create_confluence_release_notes.yml
-    needs: [environment_confirmation]
-    with:
-      TARGET_ENVIRONMENT: int
-      TARGET_TAG: ${{ inputs.VERSION_NUMBER }}
-      MARK_JIRA_RELEASED: false
-      CONFLUENCE_PAGE_ID: "710051481"
-      CREATE_RC_RELEASE_NOTES: true
-    secrets:
-      DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
-
-  sam_release_code:
-    needs: [create_int_rc_release_notes]
-    if: ${{ always() && !failure() && !cancelled() }} 
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - shell: bash
-        name: release code
+      - name: create_int_rc_release_notes
+        uses: ./.github/workflows/create_confluence_release_notes.yml
+        if: ${{ inputs.CREATE_INT_RC_RELEASE_NOTES == true }}
+        with:
+          TARGET_ENVIRONMENT: int
+          TARGET_TAG: ${{ inputs.VERSION_NUMBER }}
+          MARK_JIRA_RELEASED: false
+          CONFLUENCE_PAGE_ID: "710051481"
+          CREATE_RC_RELEASE_NOTES: true
+          DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+          TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+      - name: sam_release_code
+        shell: bash
         run: |
           env
-
-  create_int_release_notes:
-    needs: [sam_release_code]
-    if: ${{ inputs.CREATE_INT_RELEASE_NOTES == true && always() && !failure() && !cancelled() }}
-    uses: ./.github/workflows/create_confluence_release_notes.yml
-    with:
-      TARGET_ENVIRONMENT: int
-      MARK_JIRA_RELEASED: false
-      CONFLUENCE_PAGE_ID: "693750027"
-      CREATE_RC_RELEASE_NOTES: false
-    secrets:
-      DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
-
-  create_prod_release:
-    needs: [sam_release_code]
-    if: ${{ inputs.CREATE_PROD_RELEASE_NOTES == true && always() && !failure() && !cancelled() }}
-    uses: ./.github/workflows/create_confluence_release_notes.yml
-    with:
-      TARGET_ENVIRONMENT: prod
-      MARK_JIRA_RELEASED: false
-      CONFLUENCE_PAGE_ID: "693750029"
-      CREATE_RC_RELEASE_NOTES: false
-    secrets:
-      DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
-
-  mark_jira_released:
-    needs: [sam_release_code]
-    if: ${{ inputs.MARK_JIRA_RELEASED == true && always() && !failure() && !cancelled() }}
-    uses: ./.github/workflows/create_confluence_release_notes.yml
-    with:
-      TARGET_ENVIRONMENT: prod
-      MARK_JIRA_RELEASED: true
-      CONFLUENCE_PAGE_ID: "693750029"
-      CREATE_RC_RELEASE_NOTES: false
-      RELEASE_VERSION: ${{ inputs.VERSION_NUMBER }}
-    secrets:
-      DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
-      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
+      - name: create_int_release_notes
+        uses: ./.github/workflows/create_confluence_release_notes.yml
+        if: ${{ inputs.CREATE_INT_RELEASE_NOTES == true && always() && !failure() && !cancelled() }}
+        with:
+          TARGET_ENVIRONMENT: int
+          MARK_JIRA_RELEASED: false
+          CONFLUENCE_PAGE_ID: "693750027"
+          CREATE_RC_RELEASE_NOTES: false
+          DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+          TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+      - name: create_prod_release_notes
+        uses: ./.github/workflows/create_confluence_release_notes.yml
+        if: ${{ inputs.CREATE_PROD_RELEASE_NOTES == true && always() && !failure() && !cancelled() }}
+        with:
+          TARGET_ENVIRONMENT: prod
+          MARK_JIRA_RELEASED: false
+          CONFLUENCE_PAGE_ID: "693750029"
+          CREATE_RC_RELEASE_NOTES: false
+          DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+          TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+      - name: finalise_release
+        uses: ./.github/workflows/create_confluence_release_notes.yml
+        if: ${{ inputs.MARK_JIRA_RELEASED == true && always() && !failure() && !cancelled() }}
+        with:
+          TARGET_ENVIRONMENT: prod
+          MARK_JIRA_RELEASED: true
+          CONFLUENCE_PAGE_ID: "693750029"
+          CREATE_RC_RELEASE_NOTES: false
+          RELEASE_VERSION: ${{ inputs.VERSION_NUMBER }}
+          DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+          TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
