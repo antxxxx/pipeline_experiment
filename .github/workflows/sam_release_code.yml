@@ -63,7 +63,7 @@ on:
         required: false
       
 jobs:
-  force_environment_confirmation:
+  environment_confirmation:
     runs-on: ubuntu-latest
     environment: ${{ inputs.TARGET_ENVIRONMENT }}
     permissions:
