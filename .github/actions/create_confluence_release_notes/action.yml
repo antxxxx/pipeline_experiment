@@ -16,6 +16,7 @@ inputs:
   CREATE_RC_RELEASE_NOTES:
     required: true
     description: "whether to create rc release notes page"
+    default: "false"
   RELEASE_VERSION:
     required: false
     description: "what release version to use for RC release notes and marking released in jira" 
@@ -39,6 +40,7 @@ runs:
     - name: Get target tag
       shell: bash
       run: |
+        # get target tag
         if [ -n "${{ inputs.TARGET_TAG }}" ]; then
           target_tag="${{ inputs.TARGET_TAG }}"
           # comment out for testing
@@ -62,6 +64,7 @@ runs:
     - name: get current dev tag
       shell: bash
       run: |
+        # get current dev tag
         # comment out for testing
         # dev_tag=$(aws cloudformation describe-stacks --stack-name dev-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
         dev_tag="dev_tag"
@@ -69,17 +72,18 @@ runs:
         echo "dev_tag=${dev_tag}" >> "$GITHUB_ENV"
     - name: Call to markJiraReleased lambda
       shell: bash
+      if: inputs.RELEASE_VERSION == 'true'
       run: |
-        if [ -n "${{ inputs.RELEASE_VERSION }}" ]; then
-          release_version="PfP-AWS-${{ inputs.RELEASE_VERSION }}"
-          echo "calling mark jira released"
-          # comment out for testing
-          # aws lambda invoke --function-name MarkJiraReleased --payload "{\"releaseVersion\": \"$release_version\"}" out.txt
-        fi
+        # call mark jira released
+        release_version="PfP-AWS-${{ inputs.RELEASE_VERSION }}"
+        echo "calling mark jira released"
+        # comment out for testing
+        # aws lambda invoke --function-name MarkJiraReleased --payload "{\"releaseVersion\": \"$release_version\"}" out.txt
     - name: create int release notes
       shell: bash
-      if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == false
+      if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == 'false'
       run: |
+        # create int release notes
         ENV_VAR=release-notes:CreateReleaseNotesLambdaName
         # comment out for testing
         # RELEASE_NOTES_LAMBDA=$(aws cloudformation list-exports \
@@ -106,6 +110,7 @@ runs:
       shell: bash
       if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == true
       run: |
+        # create int rc release notes
         ENV_VAR=release-notes:CreateReleaseNotesLambdaName
         # comment out for testing
         # RELEASE_NOTES_LAMBDA=$(aws cloudformation list-exports \
@@ -134,6 +139,7 @@ runs:
       shell: bash
       if: inputs.TARGET_ENVIRONMENT == 'prod'
       run: |
+        # create prod release notes
         ENV_VAR=release-notes:CreateReleaseNotesLambdaName
         # comment out for testing
         # RELEASE_NOTES_LAMBDA=$(aws cloudformation list-exports \
