@@ -1,4 +1,4 @@
-name: release package workflow
+name: sam release code
 
 on:
   workflow_call:
@@ -45,38 +45,14 @@ on:
         required: true
 
 jobs:
-  release_package:
+  sam_release_code:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.TARGET_ENVIRONMENT }}
+    permissions:
+      id-token: write
+      contents: read
     steps:
-      - name: show environment
+      - shell: bash
+        name: release code
         run: |
-          echo "TEPMLATE_FILE: ${{ inputs.TEPMLATE_FILE }}"
-          echo "STACK_NAME: ${{ inputs.STACK_NAME }}"
-          echo "CLOUD_FORMATION_DEPLOY_ROLE: ${{ inputs.CLOUD_FORMATION_DEPLOY_ROLE }}"
-          echo "TARGET_ENVIRONMENT: ${{ inputs.TARGET_ENVIRONMENT }}"
-
-      - name: Create new deployments
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const refForTagging = '${{ inputs.VERSION_NUMBER }}'.startsWith('PR-') ? '${{ github.event.pull_request.head.sha }}' : '${{ inputs.VERSION_NUMBER }}'
-            // create the new deployment
-            console.log(`creating deployment for ref ${refForTagging} with environment ${{ inputs.TARGET_ENVIRONMENT }} and description ${{ inputs.VERSION_NUMBER }}`)
-            const deployment = await github.rest.repos.createDeployment({ 
-              owner: context.repo.owner, 
-              repo: context.repo.repo, 
-              ref: refForTagging,
-              auto_merge: false,
-              required_contexts: [],
-              environment: '${{ inputs.TARGET_ENVIRONMENT }}',
-              description: '${{ inputs.VERSION_NUMBER }}'
-            });
-            // set deployment to success
-            console.log(`updating status for deployment id ${deployment.data.id}`)
-            await github.rest.repos.createDeploymentStatus({
-              owner: context.repo.owner, 
-              repo: context.repo.repo, 
-              deployment_id: deployment.data.id,
-              description: '${{ inputs.VERSION_NUMBER }}',
-              state: 'success'
-            });
+          env
