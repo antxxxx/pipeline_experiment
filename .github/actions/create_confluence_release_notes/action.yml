@@ -125,7 +125,7 @@ runs:
             "targetEnvironment": "INT", 
             "productName": "Prescritpions for Patients AWS layer", 
             "releaseNotesPageId": "710051481", 
-            "releaseNotesPageTitle": "PfP-AWS-$dev_tag - Deployed to [INT] on $(date +'%d-%m-%y')",
+            "releaseNotesPageTitle": "PfP-AWS-$release_tag - Deployed to [INT] on $(date +'%d-%m-%y')",
             "createReleaseCandidate": "true",
             "releasePrefix": "PfP-AWS-"
         }
