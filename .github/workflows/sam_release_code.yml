@@ -112,7 +112,7 @@ jobs:
           CREATE_RC_RELEASE_NOTES: false
           DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
           TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
-      - name: finalise_release
+      - name: mark_released_in_jira
         uses: ./.github/actions/create_confluence_release_notes
         if: ${{ inputs.MARK_JIRA_RELEASED == true && always() && !failure() && !cancelled() }}
         with:
