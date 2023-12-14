@@ -108,7 +108,7 @@ runs:
         # --payload file://payload.json out.txt
     - name: create int rc release notes
       shell: bash
-      if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == true
+      if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == 'true'
       run: |
         # create int rc release notes
         ENV_VAR=release-notes:CreateReleaseNotesLambdaName
