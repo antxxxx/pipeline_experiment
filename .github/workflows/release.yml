@@ -38,7 +38,7 @@ jobs:
 
       # using git commit sha for version of action to ensure we have stable version
       - name: Install asdf
-        uses: asdf-vm/actions/setup@4f8f7939dd917fc656bb7c3575969a5988c28364
+        uses: asdf-vm/actions/setup@05e0d2ed97b598bfce82fd30daf324ae0c4570e6
         with:
           asdf_branch: v0.11.3
   
@@ -52,7 +52,7 @@ jobs:
             ${{ runner.os }}-asdf-
 
       - name: Install asdf dependencies in .tool-versions
-        uses: asdf-vm/actions/install@4f8f7939dd917fc656bb7c3575969a5988c28364
+        uses: asdf-vm/actions/install@05e0d2ed97b598bfce82fd30daf324ae0c4570e6
         with:
           asdf_branch: v0.11.3
         env:
@@ -60,8 +60,7 @@ jobs:
   
       - name: Install python packages
         run: |
-          export PATH="/home/runner/.asdf/installs/poetry/1.3.1/bin:$PATH"
-          poetry install
+          make install-python
 
       - name: Set SPEC_VERSION env var for merges to main
         run: echo "SPEC_VERSION=$(poetry run python scripts/calculate_version.py)" >> $GITHUB_ENV
@@ -77,18 +76,18 @@ jobs:
         uses: ncipollo/release-action@6c75be85e571768fa31b40abf38de58ba0397db5
         continue-on-error: true
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-            tag: ${{ env.SPEC_VERSION }}
-            commit: ${{  github.sha }}
-            body: |
-              ## Commit message
-              ${{ github.event.head_commit.message }}
-              ## Info
-              [See code diff](${{ github.event.compare }})
-              [Release workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-  
-              It was initialized by [${{ github.event.sender.login }}](${{ github.event.sender.html_url }})
+          tag: ${{ env.SPEC_VERSION }}
+          commit: ${{  github.sha }}
+          body: |
+            ## Commit message
+            ${{ github.event.head_commit.message }}
+            ## Info
+            [See code diff](${{ github.event.compare }})
+            [Release workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            It was initialized by [${{ github.event.sender.login }}](${{ github.event.sender.html_url }})
 
       - name: output SPEC_VERSION
         id: output_spec_version
@@ -117,6 +116,32 @@ jobs:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       SPLUNK_HEC_TOKEN: ${{ secrets.DEV_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
+
+  create_int_release_notes_post_dev:
+    needs: [release_dev]
+    uses: ./.github/workflows/create_confluence_release_notes.yml
+    with:
+      TARGET_ENVIRONMENT: int
+      MARK_JIRA_RELEASED: false
+      CONFLUENCE_PAGE_ID: "693750027"
+      CREATE_RC_RELEASE_NOTES: false
+      PAUSE_PIPELINE: no_pause
+    secrets:
+      DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+
+  create_prod_release_notes_post_dev:
+    needs: [release_dev]
+    uses: ./.github/workflows/create_confluence_release_notes.yml
+    with:
+      TARGET_ENVIRONMENT: prod
+      MARK_JIRA_RELEASED: false
+      CONFLUENCE_PAGE_ID: "693750029"
+      CREATE_RC_RELEASE_NOTES: false
+      PAUSE_PIPELINE: no_pause
+    secrets:
+      DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
 
   release_dev_sandbox:
     needs: [tag_release, package_code, get_commit_id]
@@ -178,8 +203,22 @@ jobs:
       SPLUNK_HEC_TOKEN: ${{ secrets.QA_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.QA_TARGET_SPINE_SERVER }}
 
-  release_int:
+  create_int_release_notes_pre_int:
     needs: [tag_release, release_qa, package_code, get_commit_id]
+    uses: ./.github/workflows/create_confluence_release_notes.yml
+    with:
+      TARGET_ENVIRONMENT: int
+      TARGET_TAG: ${{needs.tag_release.outputs.spec_version}}
+      MARK_JIRA_RELEASED: false
+      CONFLUENCE_PAGE_ID: "710051481"
+      CREATE_RC_RELEASE_NOTES: true
+      PAUSE_PIPELINE: pause
+    secrets:
+      DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+
+  release_int:
+    needs: [create_int_release_notes_pre_int, tag_release, release_qa, package_code, get_commit_id]
     uses: ./.github/workflows/sam_release_code.yml
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
@@ -197,6 +236,19 @@ jobs:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
       SPLUNK_HEC_TOKEN: ${{ secrets.INT_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.INT_TARGET_SPINE_SERVER }}
+
+  create_int_release_notes_post_int:
+    needs: [release_int]
+    uses: ./.github/workflows/create_confluence_release_notes.yml
+    with:
+      TARGET_ENVIRONMENT: int
+      MARK_JIRA_RELEASED: false
+      CREATE_RC_RELEASE_NOTES: false
+      CONFLUENCE_PAGE_ID: "693750029"
+      PAUSE_PIPELINE: no_pause
+    secrets:
+      DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
 
   release_sandbox:
     needs: [tag_release, release_qa, package_code, get_commit_id]
@@ -237,3 +289,17 @@ jobs:
       CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
       SPLUNK_HEC_TOKEN: ${{ secrets.PROD_SPLUNK_HEC_TOKEN }}
       TARGET_SPINE_SERVER: ${{ secrets.PROD_TARGET_SPINE_SERVER }}
+
+  create_prod_release_notes_post_prod:
+    needs: [release_prod]
+    uses: ./.github/workflows/create_confluence_release_notes.yml
+    with:
+      TARGET_ENVIRONMENT: prod
+      MARK_JIRA_RELEASED: true
+      CREATE_RC_RELEASE_NOTES: false
+      CONFLUENCE_PAGE_ID:  "693750029"
+      RELEASE_VERSION: ${{needs.tag_release.outputs.spec_version}}
+      PAUSE_PIPELINE: no_pause
+    secrets:
+      DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
