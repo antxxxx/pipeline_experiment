@@ -82,7 +82,7 @@ jobs:
         if: ${{ inputs.CREATE_INT_RC_RELEASE_NOTES == true }}
         with:
           TARGET_ENVIRONMENT: int
-          TARGET_TAG: ${{ inputs.VERSION_NUMBER }}
+          RELEASE_TAG: ${{ inputs.VERSION_NUMBER }}
           MARK_JIRA_RELEASED: false
           CONFLUENCE_PAGE_ID: "710051481"
           CREATE_RC_RELEASE_NOTES: true

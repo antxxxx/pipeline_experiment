@@ -4,7 +4,7 @@ inputs:
   TARGET_ENVIRONMENT:
     required: true
     description: "Target Environment"
-  TARGET_TAG:
+  RELEASE_TAG:
     required: false
     description: "Target tag"
   MARK_JIRA_RELEASED:
@@ -37,23 +37,14 @@ runs:
 #        aws-region: eu-west-2
 #        role-to-assume: ${{ secrets.TARGET_CLOUD_FORMATION_DEPLOY_ROLE }}
 #        role-session-name: github-actions
-    - name: Get target tag
+    - name: Get deployed tag on target
       shell: bash
       run: |
-        # get target tag
-        if [ -n "${{ inputs.TARGET_TAG }}" ]; then
-          target_tag="${{ inputs.TARGET_TAG }}"
-          # comment out for testing
-          # current_tag=$(aws cloudformation describe-stacks --stack-name ${{ inputs.TARGET_ENVIRONMENT }}-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
-          current_tag="current_tag"
-          echo "current_tag=${current_tag}" >> "$GITHUB_ENV"
-        else
-          # comment out for testing
-          # target_tag=$(aws cloudformation describe-stacks --stack-name ${{ inputs.TARGET_ENVIRONMENT }}-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
-          target_tag="target_tag"
-        fi
-        export target_tag
-        echo "target_tag=${target_tag}" >> "$GITHUB_ENV"
+        # get current deployed tag on target
+        # comment out for testing
+        # export current_deployed_tag=$(aws cloudformation describe-stacks --stack-name ${{ inputs.TARGET_ENVIRONMENT }}-ci --query "Stacks[0].Tags[?Key=='version'].Value" --output text)
+        export current_deployed_tag="current_deployed_tag"
+        echo "current_deployed_tag=${current_deployed_tag}" >> "$GITHUB_ENV"
 # comment out for testing
 #    - name: connect to dev account
 #      uses: aws-actions/configure-aws-credentials@v4
@@ -100,7 +91,7 @@ runs:
         RELEASE_NOTES_LAMBDA="RELEASE_NOTES_LAMBDA"
         cat <<EOF > payload.json
         { 
-            "currentTag": "$target_tag", 
+            "currentTag": "$current_deployed_tag", 
             "targetTag": "$dev_tag", 
             "repoName": "prescriptionsforpatients", 
             "targetEnvironment": "INT", 
@@ -125,10 +116,11 @@ runs:
         #  --query "Exports[?Name=='$ENV_VAR'].Value" \
         #  --output text)
         RELEASE_NOTES_LAMDA="RELEASE_NOTES_LAMBDA"
+        release_tag="${{ inputs.RELEASE_TAG }}"
         cat <<EOF > payload.json
         { 
-            "currentTag": "$current_tag", 
-            "targetTag": "$target_tag", 
+            "currentTag": "$current_deployed_tag", 
+            "targetTag": "$release_tag", 
             "repoName": "prescriptionsforpatients", 
             "targetEnvironment": "INT", 
             "productName": "Prescritpions for Patients AWS layer", 
@@ -156,7 +148,7 @@ runs:
         RELEASE_NOTES_LAMBDA="RELEASE_NOTES_LAMBDA"
         cat <<EOF > payload.json
         { 
-            "currentTag": "$target_tag", 
+            "currentTag": "$current_deployed_tag", 
             "targetTag": "$dev_tag", 
             "repoName": "prescriptionsforpatients", 
             "targetEnvironment": "PROD", 
