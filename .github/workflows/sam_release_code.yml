@@ -78,7 +78,7 @@ jobs:
   create_int_release_notes_pre_int:
     if: ${{ inputs.CREATE_INT_RC_RELEASE_NOTES == true }}
     uses: ./.github/workflows/create_confluence_release_notes.yml
-    needs: [force_environment_confirmation]
+    needs: [environment_confirmation]
     with:
       TARGET_ENVIRONMENT: int
       TARGET_TAG: ${{ inputs.VERSION_NUMBER }}
