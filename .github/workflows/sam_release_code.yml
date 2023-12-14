@@ -75,8 +75,8 @@ jobs:
         run: |
           echo "Deploying to {{ inputs.TARGET_ENVIRONMENT }}"
 
-  create_int_release_notes_pre_int:
-    if: ${{ inputs.CREATE_INT_RC_RELEASE_NOTES == true || inputs.CREATE_INT_RC_RELEASE_NOTES == 'true' }}
+  create_int_rc_release_notes:
+    if: ${{ github.event.inputs.CREATE_INT_RC_RELEASE_NOTES == true || github.event.inputs.CREATE_INT_RC_RELEASE_NOTES == 'true' }}
     uses: ./.github/workflows/create_confluence_release_notes.yml
     needs: [environment_confirmation]
     with:
@@ -90,7 +90,7 @@ jobs:
       TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
 
   sam_release_code:
-    needs: [create_int_release_notes_pre_int]
+    needs: [create_int_rc_release_notes]
     if: ${{ always() && !failure() && !cancelled() }} 
     runs-on: ubuntu-latest
     permissions:
@@ -102,9 +102,9 @@ jobs:
         run: |
           env
 
-  create_int_release_notes_post_dev_or_int:
+  create_int_release_notes:
     needs: [sam_release_code]
-    if: ${{ inputs.CREATE_INT_RELEASE_NOTES == true || inputs.CREATE_INT_RELEASE_NOTES == 'true' }}
+    if: ${{ github.event.inputs.CREATE_INT_RELEASE_NOTES == true || github.event.inputs.CREATE_INT_RELEASE_NOTES == 'true' }}
     uses: ./.github/workflows/create_confluence_release_notes.yml
     with:
       TARGET_ENVIRONMENT: int
@@ -115,9 +115,9 @@ jobs:
       DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
 
-  create_prod_release_notes_post_dev:
+  create_prod_release:
     needs: [sam_release_code]
-    if: ${{ inputs.CREATE_PROD_RELEASE_NOTES == true || inputs.CREATE_PROD_RELEASE_NOTES == 'true' }}
+    if: ${{ github.event.inputs.CREATE_PROD_RELEASE_NOTES == true || github.event.inputs.CREATE_PROD_RELEASE_NOTES == 'true' }}
     uses: ./.github/workflows/create_confluence_release_notes.yml
     with:
       TARGET_ENVIRONMENT: prod
@@ -128,9 +128,9 @@ jobs:
       DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
 
-  create_prod_release_notes_post_prod:
+  mark_jira_released:
     needs: [sam_release_code]
-    if: ${{ inputs.MARK_JIRA_RELEASED == true || inputs.MARK_JIRA_RELEASED == 'true' }}
+    if: ${{ github.event.inputs.MARK_JIRA_RELEASED == true || github.event.inputs.MARK_JIRA_RELEASED == 'true' }}
     uses: ./.github/workflows/create_confluence_release_notes.yml
     with:
       TARGET_ENVIRONMENT: prod
