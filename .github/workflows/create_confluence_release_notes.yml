@@ -21,9 +21,6 @@ on:
       RELEASE_VERSION:
         required: false
         type: string 
-      PAUSE_PIPELINE:
-        required: true
-        type: string 
     secrets:
       DEV_CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
@@ -34,7 +31,6 @@ on:
 jobs:
   create_confluence_release_notes:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.PAUSE_PIPELINE }}
     permissions:
       id-token: write
       contents: read
