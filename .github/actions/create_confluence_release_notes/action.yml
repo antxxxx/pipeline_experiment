@@ -36,7 +36,7 @@ runs:
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: eu-west-2
-        role-to-assume: ${{ secrets.TARGET_CLOUD_FORMATION_DEPLOY_ROLE }}
+        role-to-assume: ${{ inputs.TARGET_CLOUD_FORMATION_DEPLOY_ROLE }}
         role-session-name: github-actions
     - name: Get deployed tag on target
       shell: bash
@@ -53,7 +53,7 @@ runs:
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: eu-west-2
-        role-to-assume: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+        role-to-assume: ${{ inputs.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
         role-session-name: github-actions
     - name: get current dev tag
       shell: bash
