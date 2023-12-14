@@ -72,13 +72,21 @@ runs:
         echo "dev_tag=${dev_tag}" >> "$GITHUB_ENV"
     - name: Call to markJiraReleased lambda
       shell: bash
-      if: inputs.RELEASE_VERSION == 'true'
+      if: inputs.MARK_JIRA_RELEASED = 'true'
       run: |
         # call mark jira released
         release_version="PfP-AWS-${{ inputs.RELEASE_VERSION }}"
         echo "calling mark jira released"
+        cat <<EOF > payload.json
+        { 
+            "releaseVersion": "$release_version"
+        }
+        EOF
+        cat payload.json
         # comment out for testing
-        # aws lambda invoke --function-name MarkJiraReleased --payload "{\"releaseVersion\": \"$release_version\"}" out.txt
+        # aws lambda invoke --function-name MarkJiraReleased \
+        # --cli-binary-format raw-in-base64-out \
+        # --payload file://payload.json out.txt
     - name: create int release notes
       shell: bash
       if: inputs.TARGET_ENVIRONMENT == 'int' && inputs.CREATE_RC_RELEASE_NOTES == 'false'
