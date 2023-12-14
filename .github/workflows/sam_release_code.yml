@@ -79,6 +79,7 @@ jobs:
 
   sam_release_code:
     needs: [create_int_release_notes_pre_int]
+    if: ${{ always() && !failure() && !cancelled() }} 
     runs-on: ubuntu-latest
     environment: ${{ inputs.TARGET_ENVIRONMENT }}
     permissions:
