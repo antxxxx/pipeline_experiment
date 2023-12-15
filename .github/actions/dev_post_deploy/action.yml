@@ -1,0 +1,34 @@
+name: 'Post dev commands'
+description: 'Do things post dev deployment'
+inputs:
+  DEV_CLOUD_FORMATION_DEPLOY_ROLE:
+    required: true
+    description: "The dev cloud formation deploy role"
+  PROD_CLOUD_FORMATION_DEPLOY_ROLE:
+    required: true
+    description: "The prod cloud formation deploy role"
+  INT_CLOUD_FORMATION_DEPLOY_ROLE:
+    required: true
+    description: "The int cloud formation deploy role"
+
+runs:
+  using: "composite"
+  steps:
+    - name: create_int_release_notes
+      uses: ./.github/actions/create_confluence_release_notes
+      with:
+        TARGET_ENVIRONMENT: int
+        MARK_JIRA_RELEASED: false
+        CONFLUENCE_PAGE_ID: "693750027"
+        CREATE_RC_RELEASE_NOTES: false
+        DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ inputs.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+        TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ inputs.INT_CLOUD_FORMATION_DEPLOY_ROLE }}
+    - name: create_prod_release_notes
+      uses: ./.github/actions/create_confluence_release_notes
+      with:
+        TARGET_ENVIRONMENT: prod
+        MARK_JIRA_RELEASED: false
+        CONFLUENCE_PAGE_ID: "693750029"
+        CREATE_RC_RELEASE_NOTES: false
+        DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ inputs.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+        TARGET_CLOUD_FORMATION_DEPLOY_ROLE: ${{ inputs.PROD_CLOUD_FORMATION_DEPLOY_ROLE }}
