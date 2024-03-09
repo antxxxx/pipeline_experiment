@@ -1,0 +1,89 @@
+name: release workflow
+
+on:
+  push:
+    branches: [main]
+
+env:
+  BRANCH_NAME: ${{ github.event.ref.BRANCH_NAME }}
+
+jobs:
+  quality_checks:
+    uses: ./.github/workflows/quality_checks.yml
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  get_commit_id:
+    runs-on: ubuntu-latest
+    outputs:
+      commit_id: ${{ steps.commit_id.outputs.commit_id }}
+    steps:
+      - name: Get Commit ID
+        id: commit_id
+        run: |
+          echo "commit_id=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
+  tag_release:
+    needs: quality_checks
+    runs-on: ubuntu-latest
+    outputs:
+      spec_version: ${{steps.output_spec_version.outputs.SPEC_VERSION}}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+          fetch-depth: 0
+
+      - name: Set SPEC_VERSION env var for tags
+        run: echo "SPEC_VERSION=$$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
+
+      - name: output SPEC_VERSION
+        id: output_spec_version
+        run: |
+          echo "## RELEASE TAG :** ${{ env.SPEC_VERSION  }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "SPEC_VERSION=${{ env.SPEC_VERSION }}" >> "$GITHUB_OUTPUT"
+
+  package_code:
+    needs: tag_release
+    uses: ./.github/workflows/sam_package_code.yml
+
+  release_dev:
+    needs: [tag_release, package_code, get_commit_id]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      STACK_NAME: clinical-tracker
+      TARGET_ENVIRONMENT: dev
+      ENABLE_MUTUAL_TLS: true
+      DEPLOY_SANDBOX: false
+      BUILD_ARTIFACT: packaged_code
+      TRUSTSTORE_FILE: clinical-tracker-truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+      CREATE_INT_RELEASE_NOTES: true
+      CREATE_PROD_RELEASE_NOTES: true
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: ${{ secrets.DEV_TARGET_SPINE_SERVER }}
+
+  release_dev_sandbox:
+    needs: [tag_release, package_code, get_commit_id]
+    uses: ./.github/workflows/sam_release_code.yml
+    with:
+      ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
+      STACK_NAME: clinical-tracker-sandbox
+      TARGET_ENVIRONMENT: dev
+      ENABLE_MUTUAL_TLS: true
+      DEPLOY_SANDBOX: true
+      BUILD_ARTIFACT: packaged_sandbox_code
+      TRUSTSTORE_FILE: clinical-tracker-sandbox-truststore.pem
+      VERSION_NUMBER: ${{needs.tag_release.outputs.spec_version}}
+      COMMIT_ID: ${{needs.get_commit_id.outputs.commit_id}}
+      LOG_LEVEL: DEBUG
+      LOG_RETENTION_DAYS: 30
+    secrets:
+      CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      TARGET_SPINE_SERVER: sandbox

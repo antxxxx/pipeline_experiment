@@ -1,9 +1,8 @@
-name: release workflow
+name: release to environments
+
 
 on:
-  push:
-    branches: [main]
-    tags: [v**]
+  workflow_dispatch:
 
 env:
   BRANCH_NAME: ${{ github.event.ref.BRANCH_NAME }}
@@ -62,13 +61,18 @@ jobs:
         run: |
           make install-python
 
-      - name: Set SPEC_VERSION env var for merges to main
-        run: echo "SPEC_VERSION=$(poetry run python scripts/calculate_version.py)" >> $GITHUB_ENV
-        if: github.ref == 'refs/heads/main'
+      # use semantic-release to determine the next version number
+      - name: Dry run to get the next release version
+        id: tag_version
+        run: |
+          export SPEC_VERSION=$(npx semantic-release --dry-run | grep 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
+          echo "new_tag_version=${SPEC_VERSION}" >> $GITHUB_OUTPUT
 
-      - name: Set SPEC_VERSION env var for tags
-        run: echo "SPEC_VERSION=${{  github.ref_name }}" >> $GITHUB_ENV
-        if: github.ref != 'refs/heads/main'
+      - name: tag release
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npx semantic-release
 
       - name: Create release (tags and main)
         id: create-release
