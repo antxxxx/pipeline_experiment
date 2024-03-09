@@ -60,6 +60,20 @@
             {
                 "changelogFile": "CHANGELOG.md"
             }
+        ],
+        [
+            "@semantic-release/github",
+            {
+              "assets": [
+                {
+                  "path": "CHANGELOG.md",
+                  "label": "CHANGELOG.md"
+                }
+              ],
+              "successComment": false,
+              "failComment": false,
+              "failTitle": false
+            }
         ]
     ]
 }
