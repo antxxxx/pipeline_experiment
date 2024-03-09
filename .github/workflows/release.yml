@@ -78,10 +78,11 @@ jobs:
 
       - name: Get release
         id: get_release
-        uses: bruceadams/get-release@v1.3.2
+        uses: cardinalby/git-get-release-action@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
-
+        with:
+          tag: ${{ env.SPEC_VERSION }}
 
       - name: Edit Release
         uses: irongut/EditRelease@v1.2.0
