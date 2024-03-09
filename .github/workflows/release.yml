@@ -74,12 +74,12 @@ jobs:
         run: |
           npx semantic-release
 
-      -name: Edit Release
-       uses: irongut/EditRelease@v1.2.0
-       with:
-         token: ${{ secrets.GITHUB_TOKEN }}
-         id: ${{ env.SPEC_VERSION }}
-         body: |
+      - name: Edit Release
+        uses: irongut/EditRelease@v1.2.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          id: ${{ env.SPEC_VERSION }}
+          body: |
             ## Info
             [See code diff](${{ github.event.compare }})
             [Release workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
