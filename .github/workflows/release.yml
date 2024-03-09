@@ -67,8 +67,8 @@ jobs:
         run: |
           export SPEC_VERSION=$(npx semantic-release --dry-run | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
           echo "new_tag_version=${SPEC_VERSION}" >> $GITHUB_OUTPUT
-          env:
-            GITHUB_TOKEN: ${{ github.token }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: tag release
         env:
