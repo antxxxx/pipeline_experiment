@@ -51,8 +51,6 @@ on:
     secrets:
       CLOUD_FORMATION_DEPLOY_ROLE:
         required: true
-      SPLUNK_HEC_TOKEN:
-        required: true
       TARGET_SPINE_SERVER:
         required: true
       DEV_CLOUD_FORMATION_DEPLOY_ROLE:
