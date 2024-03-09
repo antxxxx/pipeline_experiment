@@ -67,6 +67,8 @@ jobs:
         run: |
           export SPEC_VERSION=$(npx semantic-release --dry-run | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
           echo "new_tag_version=${SPEC_VERSION}" >> $GITHUB_OUTPUT
+          env:
+            GITHUB_TOKEN: ${{ github.token }}
 
       - name: tag release
         env:
@@ -74,11 +76,18 @@ jobs:
         run: |
           npx semantic-release
 
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.3.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+
       - name: Edit Release
         uses: irongut/EditRelease@v1.2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          id: ${{ env.SPEC_VERSION }}
+          id: ${{ steps.get_release.outputs.id }}
           body: |
             ## Info
             [See code diff](${{ github.event.compare }})
