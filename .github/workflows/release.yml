@@ -57,9 +57,9 @@ jobs:
         env:
           PYTHON_CONFIGURE_OPTS: --enable-shared 
   
-      - name: Install python packages
+      - name: Install node packages
         run: |
-          make install-python
+          make install-node
 
       # use semantic-release to determine the next version number
       - name: Dry run to get the next release version
