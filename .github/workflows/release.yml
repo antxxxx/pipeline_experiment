@@ -135,7 +135,7 @@ jobs:
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: dev-sandbox
-      TARGET_ENVIRONMENT: dev
+      TARGET_ENVIRONMENT: dev-sandbox
       ENABLE_MUTUAL_TLS: true
       DEPLOY_SANDBOX: true
       BUILD_ARTIFACT: packaged_sandbox_code
@@ -216,7 +216,7 @@ jobs:
     with:
       ARTIFACT_BUCKET_PREFIX: ${{needs.tag_release.outputs.spec_version}}
       STACK_NAME: int-sandox
-      TARGET_ENVIRONMENT: int
+      TARGET_ENVIRONMENT: sandbox
       ENABLE_MUTUAL_TLS: true
       DEPLOY_SANDBOX: true
       BUILD_ARTIFACT: packaged_sandbox_code
