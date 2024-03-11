@@ -113,3 +113,20 @@ jobs:
         with:
           RELEASE_TAG: ${{ inputs.VERSION_NUMBER }}
           DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
+      - name: Checkout gh-pages
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+      - name: update environment_release
+        run: |
+            NOW=$(date +'%Y-%m-%dT%H:%M:%S')
+            echo "tag,release_datetime" > _data/${{ inputs.TARGET_ENVIRONMENT }}_latest.csv
+            echo "${{ inputs.VERSION_NUMBER }},${NOW}" >> _data/${{ inputs.TARGET_ENVIRONMENT }}_latest.csv
+            echo "${{ inputs.VERSION_NUMBER }},${NOW}" >> _data/${{ inputs.TARGET_ENVIRONMENT }}_releases.csv
+            git config user.name github-actions
+            git config user.email github-actions@github.com
+            git add _data/${{ inputs.TARGET_ENVIRONMENT }}_latest.csv
+            git add _data/${{ inputs.TARGET_ENVIRONMENT }}_releases.csv
+            git commit -m 'update releases for ${{ inputs.TARGET_ENVIRONMENT }}'
+            git pull
+            git push
