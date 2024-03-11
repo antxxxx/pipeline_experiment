@@ -36,7 +36,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set SPEC_VERSION env var for tags
-        run: echo "SPEC_VERSION=$$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
+        run: echo "SPEC_VERSION=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
 
       - name: output SPEC_VERSION
         id: output_spec_version
