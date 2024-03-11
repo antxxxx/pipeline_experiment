@@ -121,7 +121,6 @@ jobs:
       - name: update environment_release
         if: ${{ inputs.TARGET_ENVIRONMENT != 'dev-pr' }}
         run: |
-          sudo apt install -y parallel
           cd gh-pages
           NOW=$(date +'%Y-%m-%dT%H:%M:%S')
           echo "tag,release_datetime" > _data/${{ inputs.TARGET_ENVIRONMENT }}_latest.csv
