@@ -130,5 +130,5 @@ jobs:
           git add _data/${{ inputs.TARGET_ENVIRONMENT }}_latest.csv
           git add _data/${{ inputs.TARGET_ENVIRONMENT }}_releases.csv
           git commit -m 'update releases for ${{ inputs.TARGET_ENVIRONMENT }}'
-          git pull
+          git pull --ff-only
           git push
