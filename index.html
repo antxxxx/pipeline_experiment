@@ -6,91 +6,149 @@ layout: default
 ---
 <p>
   latest releases
-  <li>
-    dev {{ site.data.dev_latest[0].tag }} {{ site.data.dev_latest[0].release_datetime }}
-  </li>
-  <li>
-    dev sandbox {{ site.data.dev-sandbox_latest[0].tag }} {{ site.data.dev-sandbox_latest[0].release_datetime }}
-  </li>
-  <li>
-    ref {{ site.data.ref_latest[0].tag }} {{ site.data.ref_latest[0].release_datetime }}
-  </li>
-  <li>
-    qa {{ site.data.qa_latest[0].tag }} {{ site.data.qa_latest[0].release_datetime }}
-  </li>
-  <li>
-    int {{ site.data.int_latest[0].tag }} {{ site.data.int_latest[0].release_datetime }}
-  </li>
-  <li>
-    sandbox {{ site.data.sandbox_latest[0].tag }} {{ site.data.sandbox_latest[0].release_datetime }}
-  </li>
-  <li>
-    prod {{ site.data.prod_latest[0].tag }} {{ site.data.prod_latest[0].release_datetime }}
-  </li>
+<table>
+  <tr>
+    <th>Environment</th>
+    <th>Tag</th>
+    <th>Date release</th>
+  </tr>
+  <tr>
+    <td>dev</td>
+    <td>{{ site.data.dev_latest[0].tag }}</td>
+    <td>{{ site.data.dev_latest[0].release_datetime }}</td>
+  </tr>
+  <tr>
+    <td>dev sandbox</td>
+    <td>{{ site.data.dev-sandbox_latest[0].tag }}</td>
+    <td>{{ site.data.dev-sandbox_latest[0].release_datetime }}</td>
+  </tr>
+  <tr>
+    <td>ref</td>
+    <td>{{ site.data.ref_latest[0].tag }}</td>
+    <td>{{ site.data.ref_latest[0].release_datetime }}</td>
+  </tr>
+  <tr>
+    <td>qa</td>
+    <td>{{ site.data.qa_latest[0].tag }}</td>
+    <td>{{ site.data.qa_latest[0].release_datetime }}</td>
+  </tr>
+  <tr>
+    <td>int</td>
+    <td>{{ site.data.int_latest[0].tag }}</td>
+    <td>{{ site.data.int_latest[0].release_datetime }}</td>
+  </tr>
+  <tr>
+    <td>sandbox</td>
+    <td>{{ site.data.sandbox_latest[0].tag }}</td>
+    <td>{{ site.data.sandbox_latest[0].release_datetime }}</td>
+  </tr>
+  <tr>
+    <td>prod</td>
+    <td>{{ site.data.prod_latest[0].tag }}</td>
+    <td>{{ site.data.prod_latest[0].release_datetime }}</td>
+  </tr>
+
+</table>
 </p>
 <p>
   release history
 </p>
 <p>
   dev
-
+<table>
+  <tr>
+    <th>tag</th>
+    <th>date released</th>
+  </tr>
   {% for releases in site.data.dev_releases %}
-  <li>
-    {{ releases.tag }} {{ releases.release_datetime }}
-  </li>
+  <tr>
+    <td>{{ releases.tag }}</td>
+    <td>{{ releases.release_datetime }}</td>
+  </tr>
   {% endfor %}
+</table>
 
 </p>
 
 <p>
   dev-sandbox
-
+<table>
+  <tr>
+    <th>tag</th>
+    <th>date released</th>
+  </tr>
   {% for releases in site.data.dev-sandbox_releases %}
-  <li>
-    {{ releases.tag }} {{ releases.release_datetime }}
-  </li>
+  <tr>
+    <td>{{ releases.tag }}</td>
+    <td>{{ releases.release_datetime }}</td>
+  </tr>
   {% endfor %}
+</table>
 
 </p>
 <p>
   qa
-
+<table>
+  <tr>
+    <th>tag</th>
+    <th>date released</th>
+  </tr>
   {% for releases in site.data.qa_releases %}
-  <li>
-    {{ releases.tag }} {{ releases.release_datetime }}
-  </li>
+  <tr>
+    <td>{{ releases.tag }}</td>
+    <td>{{ releases.release_datetime }}</td>
+  </tr>
   {% endfor %}
+</table>
 
 </p>
 
 <p>
   ref
-
+<table>
+  <tr>
+    <th>tag</th>
+    <th>date released</th>
+  </tr>
   {% for releases in site.data.ref_releases %}
-  <li>
-    {{ releases.tag }} {{ releases.release_datetime }}
-  </li>
+  <tr>
+    <td>{{ releases.tag }}</td>
+    <td>{{ releases.release_datetime }}</td>
+  </tr>
   {% endfor %}
+</table>
 
 </p>
 <p>
   int
-
+<table>
+  <tr>
+    <th>tag</th>
+    <th>date released</th>
+  </tr>
   {% for releases in site.data.int_releases %}
-  <li>
-    {{ releases.tag }} {{ releases.release_datetime }}
-  </li>
+  <tr>
+    <td>{{ releases.tag }}</td>
+    <td>{{ releases.release_datetime }}</td>
+  </tr>
   {% endfor %}
+</table>
 
 </p>
 
 <p>
   prod
-
+<table>
+  <tr>
+    <th>tag</th>
+    <th>date released</th>
+  </tr>
   {% for releases in site.data.prod_releases %}
-  <li>
-    {{ releases.tag }} {{ releases.release_datetime }}
-  </li>
+  <tr>
+    <td>{{ releases.tag }}</td>
+    <td>{{ releases.release_datetime }}</td>
+  </tr>
   {% endfor %}
+</table>
 
 </p>
