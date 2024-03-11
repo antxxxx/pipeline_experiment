@@ -119,7 +119,9 @@ jobs:
           ref: gh-pages
           path: gh-pages
       - name: update environment_release
+        if: ${{ inputs.TARGET_ENVIRONMENT != 'dev-pr' }}
         run: |
+          sudo apt install -y parallel
           cd gh-pages
           NOW=$(date +'%Y-%m-%dT%H:%M:%S')
           echo "tag,release_datetime" > _data/${{ inputs.TARGET_ENVIRONMENT }}_latest.csv
@@ -130,5 +132,5 @@ jobs:
           git add _data/${{ inputs.TARGET_ENVIRONMENT }}_latest.csv
           git add _data/${{ inputs.TARGET_ENVIRONMENT }}_releases.csv
           git commit -m 'update releases for ${{ inputs.TARGET_ENVIRONMENT }}'
-          git pull --ff-only
-          git push
+          parallel --retries 10 --delay 3 ::: "git pull --ff-only && git push"
+
