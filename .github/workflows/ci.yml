@@ -39,6 +39,9 @@ jobs:
         uses: asdf-vm/actions/setup@05e0d2ed97b598bfce82fd30daf324ae0c4570e6
         with:
           asdf_branch: v0.11.3
+      - name: Set SPEC_VERSION env var for tags
+        run: |
+          echo "SPEC_VERSION=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
 
       - name: Cache asdf
         uses: actions/cache@v3
@@ -56,16 +59,18 @@ jobs:
         env:
           PYTHON_CONFIGURE_OPTS: --enable-shared
 
-
-
-      - name: Set SPEC_VERSION env var for tags
+      - name: Show what next tag would be
         run: |
-          echo "SPEC_VERSION=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
           make install-node
-          export NEW_VERSION=$(npx semantic-release --dry-run | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
-          echo "SPEC_VERSION=v${SPEC_VERSION}"
-          echo "NEW_VERSION=${NEW_VERSION}"
-          echo "SPEC_VERSION=v${SPEC_VERSION}" >> $GITHUB_ENV
+          export NEXT_VERSION=$(npx semantic-release --dry-run | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
+          tagFormat=$(jq -r .tagFormat .releaserc)
+          if [ "${tagFormat}" = "null" ]
+          then
+            tagFormat="v\${version}"
+          fi
+          NEW_SPEC_VERSION=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
+          echo "NEW_SPEC_VERSION=${NEW_SPEC_VERSION}"
+
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - name: output SPEC_VERSION
