@@ -121,8 +121,6 @@ jobs:
       - name: update environment_release
         run: |
           cd gh-pages
-          ls
-          ls _data
           NOW=$(date +'%Y-%m-%dT%H:%M:%S')
           echo "tag,release_datetime" > _data/${{ inputs.TARGET_ENVIRONMENT }}_latest.csv
           echo "${{ inputs.VERSION_NUMBER }},${NOW}" >> _data/${{ inputs.TARGET_ENVIRONMENT }}_latest.csv
