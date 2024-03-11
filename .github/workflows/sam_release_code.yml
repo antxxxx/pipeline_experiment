@@ -114,11 +114,13 @@ jobs:
           RELEASE_TAG: ${{ inputs.VERSION_NUMBER }}
           DEV_CLOUD_FORMATION_DEPLOY_ROLE: ${{ secrets.DEV_CLOUD_FORMATION_DEPLOY_ROLE }}
       - name: Checkout gh-pages
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: gh-pages
+          path: gh-pages
       - name: update environment_release
         run: |
+          cd gh-pages
           ls
           ls _data
           NOW=$(date +'%Y-%m-%dT%H:%M:%S')
