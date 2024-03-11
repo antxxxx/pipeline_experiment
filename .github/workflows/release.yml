@@ -73,7 +73,7 @@ jobs:
           fi
           SPEC_VERSION=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
           echo "SPEC_VERSION=${SPEC_VERSION}"
-          echo "SPEC_VERSION=v${SPEC_VERSION}-beta" >> $GITHUB_ENV
+          echo "SPEC_VERSION=${SPEC_VERSION}" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
