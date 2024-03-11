@@ -1,0 +1,27 @@
+[project]
+python = "^3.8"
+
+[tool.poetry]
+name = "electronic-prescription-service-api"
+version = "0.0.1-alpha"
+description = "Electronic Prescription Service API Definitions"
+license = "MIT"
+authors = [
+]
+readme = "README.md"
+repository = "https://github.com:antxxxx/pipeline_experiment.git"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pyyaml = "^5.2"
+semver = "^2.9.0"
+gitpython = "^3.1.37"
+argparse = "^1.4.0"
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
