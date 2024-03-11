@@ -119,7 +119,7 @@ jobs:
           ref: gh-pages
           path: gh-pages
       - name: update environment_release
-        if: ${{ inputs.TARGET_ENVIRONMENT != "dev-pr" }}
+        if: ${{ inputs.TARGET_ENVIRONMENT != 'dev-pr' }}
         run: |
           sudo apt install -y parallel
           cd gh-pages
