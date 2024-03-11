@@ -10,7 +10,7 @@ layout: default
     dev {{ site.data.dev_latest[0].tag }} {{ site.data.dev_latest[0].release_datetime }}
   </li>
   <li>
-    dev sandbox {{ site.data.dev_sandbox_latest[0].tag }} {{ site.data.dev_sandbox_latest[0].release_datetime }}
+    dev sandbox {{ site.data.dev-sandbox_latest[0].tag }} {{ site.data.dev-sandbox_latest[0].release_datetime }}
   </li>
   <li>
     ref {{ site.data.ref_latest[0].tag }} {{ site.data.ref_latest[0].release_datetime }}
@@ -45,7 +45,7 @@ layout: default
 <p>
   dev-sandbox
 
-  {% for releases in site.data.dev_sandbox_releases %}
+  {% for releases in site.data.dev-sandbox_releases %}
   <li>
     {{ releases.tag }} {{ releases.release_datetime }}
   </li>
