@@ -39,7 +39,7 @@ jobs:
         uses: asdf-vm/actions/setup@05e0d2ed97b598bfce82fd30daf324ae0c4570e6
         with:
           asdf_branch: v0.11.3
-  
+
       - name: Cache asdf
         uses: actions/cache@v3
         with:
@@ -54,8 +54,8 @@ jobs:
         with:
           asdf_branch: v0.11.3
         env:
-          PYTHON_CONFIGURE_OPTS: --enable-shared 
-  
+          PYTHON_CONFIGURE_OPTS: --enable-shared
+
       - name: Install node packages
         run: |
           make install-node
@@ -66,7 +66,8 @@ jobs:
           echo "SPEC_VERSION=v${SPEC_VERSION}"
           echo "NEW_VERSION=${NEW_VERSION}"
           echo "SPEC_VERSION=v${SPEC_VERSION}" >> $GITHUB_ENV
-
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - name: output SPEC_VERSION
         id: output_spec_version
         run: |
