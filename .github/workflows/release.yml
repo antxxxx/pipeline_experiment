@@ -65,8 +65,14 @@ jobs:
       - name: Dry run to get the next release version
         id: tag_version
         run: |
-          export SPEC_VERSION=$(npx semantic-release --dry-run | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
-          echo "SPEC_VERSION=v${SPEC_VERSION}-beta"
+          export NEXT_VERSION=$(npx semantic-release --dry-run | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
+          tagFormat=$(jq -r .tagFormat .releaserc)
+          if [ "${tagFormat}" = "null" ]
+          then
+            tagFormat="v\${version}"
+          fi
+          SPEC_VERSION=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
+          echo "SPEC_VERSION=${SPEC_VERSION}"
           echo "SPEC_VERSION=v${SPEC_VERSION}-beta" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ github.token }}
